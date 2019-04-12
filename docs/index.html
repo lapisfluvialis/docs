@@ -1,1 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Sakura</title>
+    <style>
+        body {
+            margin: 0;
+            position: relative;
+            transition: all 5s ease-in;
+        }
+        .start {
+            background-color: rgb(223, 244, 252);
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+    </style>
+    <script>
+        window.addEventListener('load', () => {
+            document.body.classList.add('start');
+            new ParticleAnimation('canvas')
+        });
 
+        class ParticleAnimation {
+            constructor(idOfCanvas) {
+                this.particles = [];
+                const element = document.getElementById(idOfCanvas);
+                if (element instanceof HTMLCanvasElement) {
+                    this.canvas = element;
+                }
+                else {
+                    throw new TypeError(`${element} is not an instance of HTMLCanvasElement`);
+                }
+                ;
+                this.adjustCanvasSize();
+                window.addEventListener('resize', () => this.adjustCanvasSize());
+                const ctx = this.canvas.getContext('2d');
+                if (!ctx)
+                    throw new RangeError(`The context identifier '2d' is not supported.`);
+                this.ctx = ctx;
+                for (let index = 0; index < 15; index++) {
+                    this.particles.push(new CherryPetal(this.ctx, this.canvas.width * Math.random() - 300, -this.canvas.height * (1 + Math.random())));
+                }
+                window.requestAnimationFrame(() => this.render());
+            }
+            adjustCanvasSize() {
+                this.canvas.height = window.innerHeight;
+                this.canvas.width = window.innerWidth;
+            }
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles.forEach(particle => particle.update());
+                this.particles.forEach(particle => particle.draw());
+                return window.requestAnimationFrame(() => this.render());
+            }
+        }
+
+        class Particle {
+            constructor(ctx, x, y) {
+                this.ctx = ctx;
+                this.x = x;
+                this.y = y;
+            }
+        }
+
+        class CherryPetal extends Particle {
+            constructor(ctx, x, y) {
+                super(ctx, x, y);
+                this.angle = 0;
+                this.fallAngle = 0;
+                this.rotate(Math.random() * 2 * Math.PI);
+                this.scale = 1 - 0.7 * Math.random();
+                this.fallAngle = Math.random() * 0.5 + 0.7;
+                this.speed = Math.random() * 3 + 2;
+            }
+            draw() {
+                this.ctx.beginPath();
+                this.ctx.fillStyle = "#fcc3ea";
+                this.ctxMoveRelativelyTo(11.416, 4.058);
+                this.ctxBezierCurveRelativelyTo(11.416, 4.058, 1.8160000000000007, 12.578, 3.032, 22.774);
+                this.ctxBezierCurveRelativelyTo(3.032, 22.774, 9.258, 37.674, 10.632, 39.174);
+                this.ctxBezierCurveRelativelyTo(10.632, 39.174, 13.032, 41.683, 13.442, 42.874);
+                this.ctxBezierCurveRelativelyTo(13.442, 42.874, 14.891, 46.839, 14.891, 46.839);
+                this.ctxTranslate(12.63690803634986, 42.042223017545226);
+                this.ctxArcRelatively(0, 0, 5.3, 1.1315025851148304, 0.2157794468763199, true);
+                this.ctxTranslate(-12.63690803634986, -42.042223017545226);
+                this.ctxBezierCurveRelativelyTo(18.25, 40.597, 18.847, 40.966, 19.585, 39.749);
+                this.ctxBezierCurveRelativelyTo(20.323, 38.532000000000004, 23.793, 33.449000000000005, 23.793, 33.449000000000005);
+                this.ctxBezierCurveRelativelyTo(23.793, 33.449000000000005, 27.116, 27.699000000000005, 27.386, 23.260000000000005);
+                this.ctxBezierCurveRelativelyTo(27.656, 18.821000000000005, 25.817999999999998, 12.160000000000005, 23.386, 9.114000000000004);
+                this.ctxBezierCurveRelativelyTo(20.954, 6.068000000000003, 17.686, 1.7310000000000043, 17.686, 1.7310000000000043);
+                this.ctxBezierCurveRelativelyTo(17.686, 1.7310000000000043, 17.2, 4.845, 16.615, 7.113);
+                this.ctxTranslate(7.8037857968200095, 4.324260452161363);
+                this.ctxArcRelatively(0, 0, 9.242, 0.30652382970563363, 0.8229371456423837, false);
+                this.ctxTranslate(-7.8037857968200095, -4.324260452161363);
+                this.ctxBezierCurveRelativelyTo(14.089, 11.1, 13.657, 11.126999999999999, 13.589, 10.052);
+                this.ctxBezierCurveRelativelyTo(13.589, 10.052, 13.360000000000001, 8.376999999999999, 12.868, 8.094999999999999);
+                this.ctxBezierCurveRelativelyTo(12.868, 8.094999999999999, 11.654, 7.942999999999999, 11.42, 7.110999999999999);
+                this.ctxTranslate(24.107502682880728, 5.56787438233491);
+                this.ctxArcRelatively(0, 0, 12.781, 3.0205614752305743, 3.2600034600451697, false);
+                this.ctxTranslate(-24.107502682880728, -5.56787438233491);
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+            update() {
+                this.x += Math.sin(this.fallAngle) * (this.scale + 0.7) * this.speed;
+                this.y += Math.cos(this.fallAngle) * (this.scale + 0.7) * this.speed;
+                if (this.x < this.ctx.canvas.width + 100 && this.y < this.ctx.canvas.height + 100) {
+                    this.y += this.scale;
+                    this.rotate(0.02 * Math.random());
+                }
+                else {
+                    this.x = this.ctx.canvas.width * Math.random() - 300;
+                    this.y = -50;
+                    this.scale = 1 - 0.7 * Math.random();
+                }
+            }
+            rotate(dtheta) {
+                this.angle += dtheta;
+            }
+            ctxMoveRelativelyTo(x, y) {
+                const [dx, dy] = this.rotation([x, y], this.scale, this.angle);
+                this.ctx.moveTo(this.x + dx, this.y + dy);
+            }
+            ctxArcRelatively(x, y, radius, startAngle, endAngle, anticlockwise) {
+                const [dx, dy] = this.rotation([x, y], this.scale, this.angle);
+                this.ctx.arc(this.x + dx, this.y + dy, this.scale * radius, this.angle + startAngle, this.angle + endAngle, anticlockwise);
+            }
+            ctxBezierCurveRelativelyTo(cp1x, cp1y, cp2x, cp2y, x, y) {
+                const [dcp1x, dcp1y] = this.rotation([cp1x, cp1y], this.scale, this.angle);
+                const [dcp2x, dcp2y] = this.rotation([cp2x, cp2y], this.scale, this.angle);
+                const [dx, dy] = this.rotation([x, y], this.scale, this.angle);
+                this.ctx.bezierCurveTo(this.x + dcp1x, this.y + dcp1y, this.x + dcp2x, this.y + dcp2y, this.x + dx, this.y + dy);
+            }
+            ctxTranslate(x, y) {
+                const [dx, dy] = this.rotation([x, y], this.scale, this.angle);
+                this.ctx.translate(dx, dy);
+            }
+            rotation(vector, r, theta) {
+                const newx = r * (Math.cos(theta) * vector[0] - Math.sin(theta) * vector[1]);
+                const newy = r * (Math.sin(theta) * vector[0] + Math.cos(theta) * vector[1]);
+                return [newx, newy];
+            }
+        }
+    </script>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+</body>
+</html>
